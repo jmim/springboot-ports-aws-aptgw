@@ -17,10 +17,38 @@ resource "aws_subnet" "eks" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "eks-subnet-${count.index}"
   }
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main-igw"
+  }
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "public-rt"
+  }
+}
+
+resource "aws_route_table_association" "public_rt_assoc" {
+  count          = 2
+  subnet_id      = element(aws_subnet.eks[*].id, count.index)
+  route_table_id = aws_route_table.public_rt.id
 }
 
 resource "aws_eks_cluster" "eks_cluster" {
@@ -102,7 +130,7 @@ resource "aws_eks_node_group" "eks_nodes" {
     min_size     = 1
   }
 
-  instance_types = ["t3.micro"]
+  instance_types = ["t3.medium"]
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_node_group_AmazonEKSWorkerNodePolicy,
