@@ -4,6 +4,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the packaged jar file into the container
+# ../build/libs/demo-gw-0.0.1-SNAPSHOT.jar must be present on local machine
 COPY ../build/libs/demo-gw-0.0.1-SNAPSHOT.jar /app/myapp.jar
 
 # Make ports 8000 and 8081 available to the world outside this container
