@@ -26,6 +26,6 @@ class HelloController {
 
     @GetMapping("/app/another-url")
     fun app(): String {
-        return "Greetings from Spring Boot!  ${LocalDateTime.now()}"
+        return "/app/another-url ${LocalDateTime.now()}"
     }
 }

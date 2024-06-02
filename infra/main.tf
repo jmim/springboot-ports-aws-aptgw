@@ -13,11 +13,11 @@ resource "aws_vpc" "main" {
 data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "eks" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
-  map_public_ip_on_launch = true
+  count                      = 2
+  vpc_id                     = aws_vpc.main.id
+  cidr_block                 = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  availability_zone          = element(data.aws_availability_zones.available.names, count.index)
+  map_public_ip_on_launch    = true
 
   tags = {
     Name = "eks-subnet-${count.index}"
@@ -49,6 +49,35 @@ resource "aws_route_table_association" "public_rt_assoc" {
   count          = 2
   subnet_id      = element(aws_subnet.eks[*].id, count.index)
   route_table_id = aws_route_table.public_rt.id
+}
+
+resource "aws_security_group" "eks_security_group" {
+  vpc_id = aws_vpc.main.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "eks_security_group"
+  }
 }
 
 resource "aws_eks_cluster" "eks_cluster" {

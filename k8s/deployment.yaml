@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-mega-app
+  labels:
+    app: my-mega-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-mega-app
+  template:
+    metadata:
+      labels:
+        app: my-mega-app
+    spec:
+      containers:
+        - name: my-mega-app
+          image: demo-gw:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000  # HTTP
+            - containerPort: 8081  # HTTPS
+          volumeMounts:
+            - name: keystore-volume
+              mountPath: /home/keystore
+              readOnly: true
+          env:
+            - name: SERVER_SSL_KEY_STORE
+              value: "/home/keystore/mykeystore.p12"
+          readinessProbe:
+            httpGet:
+              path: /demo-gw/actuator/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: keystore-volume
+          secret:
+            secretName: my-keystore-secret

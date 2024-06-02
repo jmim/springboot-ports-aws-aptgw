@@ -1,48 +1,27 @@
 # Requirements
-aws Account 
 
-aws-cli, kubectl, helm on local machine
+Kubernetes on AWS or local minikube. Nginx-Ingress-Controller.
 
-# Installing infra
 
-Init and apply terraform. main.tf terraform for eks + api gateway
-
-go to infra folder
-
-Terraform init
+# key generation
 ```
-terraform init
+keytool -genkeypair -alias mykey -keyalg RSA -keystore mykeystore.p12 -storetype PKCS12 -validity 365 -keysize 2048
 ```
-
-installing eks + api gateway
+# creating secret
 ```
-terraform apply
+kubectl create secret generic my-keystore-secret --from-file=mykeystore.p12
 ```
-
-Check if eks was installed and kubectl works  
-```
-aws eks update-kubeconfig --region eu-central-1 --name my-eks-cluster
-kubectl get svc -n kube-system
-```
-
-
-## install ingress controller
-
-```
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.publishService.enabled=true
-```
-
-
 
 
 
 ## key generation
+```
 keytool -genkeypair -alias mykey -keyalg RSA -keystore mykeystore.p12 -storetype PKCS12 -validity 365 -keysize 2048
-
+```
 ### creating secret on eks
+```
 kubectl create secret generic my-keystore-secret --from-file=mykeystore.p12
+```
 
 
 ## bulding image
@@ -55,42 +34,10 @@ Navigate to docker folder and execute
 docker build -t my-spring-boot-app -f Dockerfile ..
 ```
 
-## pushing image to aws repo
-
-# login to docker->ecr
-
-```
-aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin <YOUR_AWS_ACCOUNT_ID>.dkr.ecr.eu-central-1.amazonaws.com
-```
-
-creating repo for images
-
-```
-aws ecr create-repository --repository-name my-app-repo
-```
-
-image tag
-```
-docker tag demo-gw:latest <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/my-app-repo:latest
-```
-
-docker push
-```
-docker push <aws_account_id>.dkr.ecr.<your-region>.amazonaws.com/my-app-repo:latest
-```
-
-
 # Getting Started
 
 8000 port for http, 8081 port for https
 
-kubectl has 
-
-key generation
-keytool -genkeypair -alias mykey -keyalg RSA -keystore mykeystore.p12 -storetype PKCS12 -validity 365 -keysize 2048
-
-creating secret 
-kubectl create secret generic my-keystore-secret --from-file=mykeystore.p12
 
 
 
