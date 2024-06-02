@@ -12,10 +12,10 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8000
-      nodePort: 30007  # you can specify or let Kubernetes assign
+      nodePort: 30007  # http
       name: my-http
     - protocol: TCP
       port: 443
       targetPort: 8081
-      nodePort: 30008  # you can specify or let Kubernetes assign
+      nodePort: 30008  # https
       name: my-https
