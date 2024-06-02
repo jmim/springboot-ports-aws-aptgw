@@ -12,13 +12,7 @@ keytool -genkeypair -alias mykey -keyalg RSA -keystore mykeystore.p12 -storetype
 kubectl create secret generic my-keystore-secret --from-file=mykeystore.p12
 ```
 
-
-
-## key generation
-```
-keytool -genkeypair -alias mykey -keyalg RSA -keystore mykeystore.p12 -storetype PKCS12 -validity 365 -keysize 2048
-```
-### creating secret on eks
+# creating secret on kubernetes
 ```
 kubectl create secret generic my-keystore-secret --from-file=mykeystore.p12
 ```
